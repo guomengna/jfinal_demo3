@@ -7,9 +7,12 @@ import com.jfinal.render.ViewType;
 import com.jfinal.template.Engine;
 
 import model.User;
+
+//import model.User;
 public class DemoConfig extends JFinalConfig{
 	public void configConstant(Constants me) {
 	       me.setDevMode(true);
+	       me.setEncoding("utf-8");
 	       loadPropertyFile("jdbc.txt");   
 	       me.setViewType(ViewType.JSP);
 
@@ -32,7 +35,6 @@ public class DemoConfig extends JFinalConfig{
 	        ActiveReceord 中定义了 addMapping(String tableName, Class<? extends Model> modelClass>)方法，该方法建立了数据库表名到 Model 的映射关系。 另外，以上代码中 arp.addMapping(“user”, User.class)，表的主键名为默认为“id”，如果主键名称为 “user_id”则需要手动指定，如：arp.addMapping(“user”, “user_id”, User.class)。 
 	我的user表主键为id,因此使用默认主键为id,如果是其他就得修改。
 	          **/
-
 	    }
 	    public void configInterceptor(Interceptors me) {}
 	    public void configHandler(Handlers me) {}
