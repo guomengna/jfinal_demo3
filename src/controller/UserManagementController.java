@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -8,9 +9,11 @@ import java.util.List;
 import com.jfinal.core.Controller;
 
 import connect.Connect;
+import model.Easy;
 import model.User;
 import service.ReadUserService;
 import service.UserService;
+import tool.CheckEmail;
 
 public class UserManagementController extends Controller{
 	UserService userService =new UserService();
@@ -122,8 +125,46 @@ public class UserManagementController extends Controller{
     		renderJson();
     	}else{
     		setAttr("result",2);
-    		setAttr("reason","未查询到数据");
+    		setAttr("reason","未查询到数据，登录失败");
     		System.out.println("未查询到数据");
+    		renderJson();
     	}
     }
+    
+    /**
+     * 注册
+     */
+    public void register() {
+    	String username="";
+  		String password="";
+  		String email="";  	
+  		username =getPara("username");
+  		password =getPara("password");
+  		email =getPara("email");
+  		//easyTable为easy表的别名
+  		User newuser=getModel(User.class,"userTable");
+  		System.out.println("username="+username);
+  		System.out.println("password="+password);
+  		System.out.println("email="+email);
+  		
+  		newuser.set("username",username);
+  		newuser.set("password",password);  
+  		newuser.set("email",email);  
+  		
+          boolean flag = newuser.save();  
+          if (flag) {  
+          	renderText("yes!注册成功！！");
+          	setAttr("result",1);
+      		setAttr("status","register succeed");
+      		renderJson();
+          }else {  
+              renderText("sorry,注册失败！！");
+              setAttr("result",2);
+      		setAttr("status","register fail");
+      		renderJson();
+          }
+ 	
+    }
+  
+    
 }
