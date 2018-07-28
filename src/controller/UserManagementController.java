@@ -137,10 +137,14 @@ public class UserManagementController extends Controller{
     public void register() {
     	String username="";
   		String password="";
-  		String email="";  	
+  		String email="";
+  		int code=0;
+  		boolean actived;
   		username =getPara("username");
   		password =getPara("password");
   		email =getPara("email");
+  		code =Integer.parseInt(getPara("code"));
+  		actived =false;
   		//easyTable为easy表的别名
   		User newuser=getModel(User.class,"userTable");
   		System.out.println("username="+username);
@@ -150,12 +154,20 @@ public class UserManagementController extends Controller{
   		newuser.set("username",username);
   		newuser.set("password",password);  
   		newuser.set("email",email);  
+  		newuser.set("code",code);  
+  		newuser.set("actived",actived);
   		
           boolean flag = newuser.save();  
-          if (flag) {  
+          if (flag) {
+        	  List<User> userlist=new ArrayList<User>();
+          	  User currentUser=new User(); 
+              ReadUserService reader=new ReadUserService();
+              userlist=reader.findAUser(username, password);
+              currentUser=userlist.get(0);
           	renderText("yes!注册成功！！");
           	setAttr("result",1);
       		setAttr("status","register succeed");
+      		setAttr("readerUser_returns",currentUser);
       		renderJson();
           }else {  
               renderText("sorry,注册失败！！");
@@ -165,6 +177,50 @@ public class UserManagementController extends Controller{
           }
  	
     }
-  
+    /**
+     * 验证邮箱激活是否成功
+     * 传入的是验证码和用户的id
+     * 根据这两个参数寻找数据库中的数据，若是有则将这个对象的状态设置为激活
+     * 未激活的用户相当于注册失败，无法登录
+     */
+    public void validEmail(){
+    	int id=0;
+  		int code=0; 	
+  		id =Integer.parseInt(getPara("id"));
+  		code =Integer.parseInt(getPara("code"));
+  		User registerUser=new User();
+  		List<User> userlist=new ArrayList<User>();
+  		ReadUserService reader=new ReadUserService();
+        userlist=reader.findAUserValidEmail(id, code);
+    	//查询全部用户，调用的是ReadUserService中的方法findListUser
+    	if(userlist.size()!=0){
+    		System.out.println("查询到"+userlist.size()+"条数据");
+    		registerUser=userlist.get(0);
+    		registerUser.setActived(true);
+    		System.out.println("registerUser.getActived()"+registerUser.getActived());
+//    		boolean flag = registerUser.update();
+    		boolean flag =registerUser.dao.findById(id).set("actived",true).update();
+            if (flag) {  
+            	renderText("yes!更改成功！！");
+            	setAttr("result",1);
+        		setAttr("status","change actived succeed 激活成功！"+registerUser.getActived());
+        		renderJson();
+            }else {  
+                renderText("sorry,更改失败！！");
+                setAttr("result",2);
+        		setAttr("status","change actived fail");
+        		renderJson();
+            }
+    		setAttr("result",flag);
+    		setAttr("readerUser_returns",registerUser);
+    		renderJson();
+    		
+    	}else{
+    		setAttr("result",false);
+    		setAttr("reason","未查询到数据，登录失败");
+    		System.out.println("未查询到数据");
+    		renderJson();
+    	}
+    }
     
 }

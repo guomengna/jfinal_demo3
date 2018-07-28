@@ -1,8 +1,13 @@
 package service;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
+import connect.Connect;
 import model.User;
+import tool.CheckEmail;
 
 public class ReadUserService {
 	/**
@@ -47,4 +52,13 @@ public class ReadUserService {
 		System.out.printf("sql:"+sql);
 		return users;
 	}
+	
+	public List findAUserValidEmail(int id,int code){
+		String sql="select *from user where id='"+id+"' and code='"+code+"'";
+		List users=User.dao.find(sql);
+		System.out.printf("sql:"+sql);
+		return users;
+	}
+	
+    
 }
