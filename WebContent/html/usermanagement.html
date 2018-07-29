@@ -1,29 +1,291 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>用户管理</title>
+<td>欢迎进入用户管理界面</td>
+<!-- jquery核心库 -->  
+<script type="text/javascript" src="../jquery-easyui-1.5.5.1/jquery.min.js"></script>   
+<!-- easyui核心库 -->   
+<script type="text/javascript" src="../jquery-easyui-1.5.5.1/jquery.easyui.min.js"></script>  
+<!-- easyui核心UI文件 css -->    
+<link href="../jquery-easyui-1.5.5.1/themes/default/easyui.css" rel="stylesheet" type="text/css"/>  
+<!-- easyui图标 -->  
+<link href="../jquery-easyui-1.5.5.1/themes/icon.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-	<tr>用户管理模块</tr>
-	<table class="easyui-datagrid" title="Basic DataGrid" style="height:100px"
-			data-options="fitColumns:true,singleSelect:true,url:'datagrid_data1.json',method:'get',
-			striped:true,pagination:true,showHeader:true">
-    <thead>
-		<tr>
-			<th data-options="field:'code',width:100">Code</th>
-			<th data-options="field:'name',width:100">Name</th>
-			<th data-options="field:'price',width:100">Price</th>
-		</tr>
-    </thead>
-    <tbody>
-		<tr>
-			<td>001</td><td>name1</td><td>232355555555555</td>
-		</tr>
-		<tr>
-			<td>002</td><td>name2</td><td>4612</td>
-		</tr>
-	</tbody>
-</table>
+	<form id="form1">
+	<div>
+		<table id="tt" 
+			field="method:'get',pagination: true,onClickRow: onClickRow,
+				onClickCell: onClickCell"
+				
+		>
+		    <thead>
+				<tr>
+					<th field="ck" width="100" align="center" checkbox="true"></th>
+					<th field="id" width="100" align="center">编号</th>
+					<th field="username" width="100" align="center" editor="text">用户名</th>
+					<th field="password" width="100" align="center">密码</th>
+					<th field="email" width="100" align="center">电子邮箱</th>
+				</tr>
+		    </thead>
+		</table>
+	</div>
+	<div id="tb" style="padding: 3px">
+			
+			<td>用户名:</td>
+            <td><input type="text" name="username" id="username" style="line-height: 26px; border: 1px solid #ccc"/></td> 
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="readerUser()">查询</a>   
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="append()">新增</a>   
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">确定</a>  
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-undo'" onclick="removeit()">取消</a>
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-clear'" onclick="removeit()">删除</a>   
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-export'" onclick="doExport()">导出选中</a>   
+	</div>
+	</form>
+	
+<script type="text/javascript"> 
+	var editIndex = undefined;
+	function endEditing(){
+		if (editIndex == undefined){return true}
+		if ($('#tt').datagrid('validateRow', editIndex)){
+			var ed = $('#dg').datagrid('getEditor', {index:editIndex,field:'productid'});
+			var productname = $(ed.target).combobox('getText');
+			$('#tt').datagrid('getRows')[editIndex]['productname'] = productname;
+			$('#tt').datagrid('endEdit', editIndex);
+			editIndex = undefined;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	function onClickRow(index){
+		if (editIndex != index){
+			if (endEditing()){
+				$('#tt').datagrid('selectRow', index)
+						.datagrid('beginEdit', index);
+				editIndex = index;
+			} else {
+				$('#tt').datagrid('selectRow', editIndex);
+			}
+		}
+	}
+	function append(){
+		if (endEditing()){
+			$('#tt').datagrid('appendRow',{
+				username:'temp',
+				password:'123',
+				email:'null'
+			});
+			//$('#tt').datagrid('appendRow');
+			//editIndex = $('#tt').datagrid('getRows').length-1;
+			//$('#tt').datagrid('selectRow', editIndex)
+					//.datagrid('beginEdit', editIndex);
+		}
+	}
+	function removeit(){
+		//if (editIndex == undefined){return}
+		//$('#tt').datagrid('cancelEdit', editIndex)
+		//		.datagrid('deleteRow', editIndex);
+		//editIndex = undefined;
+	}
+	function accept(){
+		if (endEditing()){
+			$('#tt').datagrid('acceptChanges');
+		}
+	}
+	function reject(){
+		$('#tt').datagrid('rejectChanges');
+		editIndex = undefined;
+	}
+	
+    $(function () {  
+        var IsCheckFlag = true;   
+        $("#tt").datagrid({  
+            title: "数据分页",  
+            url:"http://localhost/usermanagement/ReadUserByUsername", 
+            width: "100%",  
+            height: "628px", 
+            striped: true,     //交替行换色  
+            rownumbers: true,  //行号  
+            pagination: true,  //显示底部分页  
+            fitColumns: true,//自动适应。先给列随便加个宽度  
+            toolbar: "#tb",  
+            checkOnSelect: false, //true，当用户点击行的时候该复选框就会被选中或取消选中。  
+            selectOnCheck: true, //true，单击复选框将永远选择行。  
+            onClickRow: function (index, row) {  
+                var d_id = row["d_id"];  
+                //alert(d_id);  
+            },  
+            onClickCell: function (rowIndex, field, value) {  
+                //alert(value);  
+                IsCheckFlag = false;  
+            },  
+            onSelect: function (rowIndex, rowData) {  
+                if (!IsCheckFlag) {  
+                    IsCheckFlag = true;  
+                    $("#tt").datagrid("unselectRow", rowIndex);  
+                }  
+            },  
+            onUnselect: function (rowIndex, rowData) {  
+                if (!IsCheckFlag) {  
+                    IsCheckFlag = true;  
+                    $("#tt").datagrid("selectRow", rowIndex);  
+                }  
+            }  
+        });  
+
+        var p = $('#tt').datagrid('getPager');  
+        $(p).pagination({  
+            /*  
+			                页数文本框前显示的汉字 修改每页默认条数   
+			                搜索pageList在jquery.easyui.min.js中修改，  
+			                分页区下拉分页数量集合和默认每页分页条数  
+                  striped属性 交替行换色  
+            */ 
+            pageSize: 10,  
+            pageNumber: 1,  
+            pageList: [10, 20, 30, 40, 50],  
+            beforePageText: '第',  
+            afterPageText: '页    共 {pages} 页',  
+            displayMsg: '当前显示 {from}-{to} 条记录,共 {total} 条记录'  
+        });  
+    });  
+    
+    //搜索  
+    function doSearch() {  
+    	readerUser();
+    	$('#tt').datagrid('load', {  
+            dname: $('#d_name').val(),  
+            delse: $('#d_else').val()  
+        });  
+    };  
+
+    //导出  
+    function doExport() {  
+        var models = [];  
+        var rows = $('#tt').datagrid('getChecked');  
+        for (var i = 0; i < rows.length; i++) {  
+            models.push(rows[i].d_id);  
+        }  
+        alert(models.join(','));  
+    }  
+
+    //新增  
+    function doAdd() {  
+        alert("新增");  
+    }  
+
+    //格式化列数据  
+    function formatPrice(val, row, index) {  
+        if (row.d_amount < 1010) {  
+            return '<span style="color:red;">' + val + '</span>';  
+        } else {  
+            return val;  
+        }  
+    }  
+
+    //自定义操作列  
+    function formatOper(val, row, index) {  
+        var str = "";  
+        str += '<a href="javascript:void(0);" onclick="doEdit(' + row.d_id + ')">修改</a>';  
+        str += '  ';  
+        str += '<a href="javascript:void(0);" onclick="doDelete(' + row.d_id + ')">删除</a>';  
+        return str;  
+    }  
+    //编辑  
+    function doEdit(id) {  
+        alert(id);  
+    }  
+    //删除  
+    function doDelete(id) {  
+        alert(id);  
+    }
+    
+    <!--显示查询到的数据 --><!-- 未执行此方法，接口是没问题的http://localhost/usermanagement/ReadUserAjax，但是输出顺序不对-->  
+   	//查询全部用户，调用的是url:"http://localhost/usermanagement/ReadUserAjax"
+   	//查询输入的用户，加入限定条件username,调用的是url:"http://localhost/usermanagement/ReadUserByUsername"
+    function readerUser(){
+	    //var id=document.getElementById("id");  
+	    //var username= $('#username').val(); 
+	    var username=$("#username").val()
+	    //var password=document.getElementById("password");  
+	    //var email=document.getElementById("email");
+	    alert(username);
+	    $.ajax({
+	    	type:"post",
+	    	//数据获取地址
+	    	url:"http://localhost/usermanagement/ReadUserByUsername",//要发送的后台地址
+	    	contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+	        //data:{"id":id,"username":username,"password":password,"email":email},
+	        //data:{"username":username},//要发送的数据（参数）
+	        data: "&username=" + username,
+
+	        dataType:"json",//后台处理返回的数据格式
+	        success:function(data){
+	        	alert("查询成功");
+		        var userlist=data.readerUser_returns;  
+		        var result=data.result;
+			    if(result==2)
+			    {
+			       alert(data.reason);
+			    }
+			    else{
+				    $(".info table tbody").empty();
+				    var insertText =  "<tr><td>编号</td><td>用户名  </td> <td>密码</td><td>电子邮箱</td> </tr>";  
+				    for(var i=0;i<userlist.length;i++){
+				    	insertText+=  "<tr> <td>" + userlist[i].id +"</td>" +  "<td>" + userlist[i].username   
+				    	+"</td>" +  "<td>" + userlist[i].password + "</td>" +  "<td>" + userlist[i].email + "</td></tr>";   
+				    }
+				    
+				    //显示不出来
+				    $("#tt").append(insertText);
+				    //正常显示
+				    $('#tt').datagrid({
+	     				data: data.readerUser_returns
+	     			}); 
+			    }
+		    }
+	    } 
+	    );  
+    } 
+    //全部数据显示，，应该分页显示，每页10条
+    $.ajax({
+    	type:"post",
+    	//数据获取地址
+    	url:"http://localhost/usermanagement/ReadUserAjax",
+    	contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+        //data:{"id":id,"username":username,"password":password,"email":email},
+        data:{},//查询所有的数据，所以不用传输参数
+        dataType:"json",
+        success:function(data){
+	        var userlist=data.readerUser_returns;  
+	        var result=data.result;
+		    if(result==2)
+		    {
+		       alert(data.reason);
+		    }
+		    else{
+			    $(".info table tbody").empty();
+			    var insertText =  "<tr><td>编号</td><td>用户名  </td> <td>密码</td><td>电子邮箱</td> </tr>";  
+			    for(var i=0;i<userlist.length;i++){
+			    	insertText+=  "<tr> <td>" + userlist[i].id +"</td>" +  "<td>" + userlist[i].username   
+			    	+"</td>" +  "<td>" + userlist[i].password + "</td>" +  "<td>" + userlist[i].email + "</td></tr>";   
+			    }
+			    
+			    //显示不出来
+			    $("#tt").append(insertText);
+			    //正常显示
+			    $('#tt').datagrid({
+     				data: data.readerUser_returns
+     			});
+		    }
+	    }
+    } 
+    );
+    
+</script>
 </body>
 </html>
