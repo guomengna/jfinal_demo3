@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jfinal.core.Controller;
+import com.jfinal.plugin.activerecord.Db;
 
 import connect.Connect;
 import model.Easy;
@@ -222,5 +223,86 @@ public class UserManagementController extends Controller{
     		renderJson();
     	}
     }
-    
+    /**
+     * 通过用户id和新密码更改密码
+     */
+    public void changePassword(){
+    	int id=0;
+  		String newpassword=""; 	
+  		id =Integer.parseInt(getPara("id"));
+  		newpassword =getPara("newpassword");
+//		boolean flag =registerUser.dao.findById(id).set("actived",true).update();
+  		try{
+    		Connect connect=new Connect();
+        	
+        	Db.update("update user set password=? where id=?", newpassword, id); 
+        	System.out.println("更改成功");
+        	connect.getConnection().close();
+        	System.out.println("关闭数据库成功");
+        	setAttr("result",1);
+        	setAttr("status","更改成功");
+    		renderJson();
+    	}catch (SQLException e) {
+    		setAttr("result",2);
+        	setAttr("status","更改失败");
+    		renderJson();
+    		e.printStackTrace();
+    	}
+    }
+    /**
+     * 下面是用于查重操作的两个接口
+     */
+    /**
+     * 查询表中所有的email,并验证当前的邮箱是否已经注册
+     */
+    public void getAllEmail(){
+    	String email=""; 	
+    	email =getPara("email");
+    	int flag=1;
+    	List<String> allEmails=new ArrayList<String>();    	
+    	allEmails=Db.query("select email from user");
+    	if(allEmails.size()>0){
+    		for(int i=0;i<allEmails.size();i++){
+    			if(email.equals(allEmails.get(i))){
+    				flag=0;
+    			}
+    		}
+    		setAttr("result",1);
+    		setAttr("flag",flag); 
+//        	setAttr("resource",allEmails);
+    		renderJson();
+    	}else{
+    		setAttr("result",2);
+        	
+    		renderJson();
+    	}
+    }
+    /**
+     * 查询表中所有的用户名，并验证当前的用户名是否已经注册
+     */
+    public void getAllUsername(){
+    	String username=""; 	
+    	username =getPara("username");
+    	int flag=1;
+    	List<String> allUsernames=new ArrayList<String>();    	
+    	allUsernames=Db.query("select username from user");
+    	if(allUsernames.size()>0){
+    		for(int i=0;i<allUsernames.size();i++){
+    			if(username.equals(allUsernames.get(i))){
+    				flag=0;
+    			}
+    		}
+    		setAttr("result",1); 
+    		setAttr("flag",flag); 
+//    		setAttr("resource size",allUsernames.size()); 
+//        	setAttr("resource",allUsernames);
+//        	setAttr("status","无重复用户名");
+    		renderJson();
+    	}else{
+    		setAttr("result",2);
+//    		setAttr("status","用户名重复");
+    		renderJson();
+    	}
+    	
+    }
 }
