@@ -186,6 +186,7 @@ public class EasyManagementController extends Controller{
 	 * 或者是每次打开编辑一篇文章都要先复制存储一个副本，然后只要文章被修改了就再存储一个新的版本，同一篇文章永远同时存在前后两条记录。
 
 	 * 旧的版本什么时候删除呢，改动不大的时候应该保留旧版本，而不是两份较新的版本
+	 * 或是每个文章都保留一个标签，相同标签即为一篇文章的不同版本
 
 	 */
 
@@ -199,6 +200,26 @@ public class EasyManagementController extends Controller{
 
 	public void rollBack(){
 
+	}
+	/**
+	 * 获取全部文章数目
+	 */
+	public void getCountOfEasy(){
+		EasyService easyGeter=new EasyService();  
+    	List<Easy> easylist=new ArrayList<Easy>();
+    	int count;
+    	easylist=easyGeter.findAllEasy();
+    	if(easylist.size()!=0){
+    		System.out.println("查询到"+easylist.size()+"条数据");
+    		count=easylist.size();
+    		setAttr("result",1);
+    		setAttr("count",count);
+    		renderJson();
+    	}else{
+    		setAttr("result",2);
+    		setAttr("reason","count=0");
+    		System.out.println("count=0");
+    	}
 	}
 
 }
