@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Easy;
+import model.PublicedEasy;
 
 /**
  * 读取数据库中文章操作，所有，按照文章名称，按照文章最近更新日期，按照文章id
@@ -61,5 +62,15 @@ public class EasyService {
 		//String sql="select *from easy where id='"+id+"'";
 		Easy easy=Easy.getter.findById(id);
 		return easy;
+	}
+	/**
+	 * 根据作者名获取所有的发表文章
+	 * @param author
+	 * @return
+	 */
+	public List<PublicedEasy> findPublicedEasyByAuthor(String author){
+		String sql="select *from publicedeasy where author='"+author+"'";
+		List<PublicedEasy> easyList=PublicedEasy.getter.find(sql);
+		return easyList;
 	}
 }

@@ -13,7 +13,7 @@ import com.jfinal.core.Controller;
 
 
 import model.Easy;
-
+import model.PublicedEasy;
 import model.User;
 
 import service.EasyService;
@@ -221,5 +221,61 @@ public class EasyManagementController extends Controller{
     		System.out.println("count=0");
     	}
 	}
+	/**
+	 * 发布文章
+	 */
+	public void publicdEasy(){
+		String title="";
+		title =getPara("title");
+		String content="";
+		content =getPara("content");
+		String author="";
+		author =getPara("author");
+		String publiceddata="";
+		publiceddata =getPara("publiceddata");
+//		int publicedeasyid;
+//		publicedeasyid =getParaToInt("publicedeasyid");
+		//publicedeasyTable为publicedeasy表的别名
+		PublicedEasy publicedEasy=getModel(PublicedEasy.class,"publicedeasyTable");
+	
+		publicedEasy.set("title",title);
+		publicedEasy.set("author",author);  
+		publicedEasy.set("content",content);  
+		publicedEasy.set("publiceddata",publiceddata);  
+        boolean flag = publicedEasy.save();  
+        if (flag) {  
+        	renderText("yes!插入成功！！");
+        	setAttr("result",1);
+    		setAttr("status","insert succeed");
+    		renderJson();
+        }else {  
+            renderText("sorry,插入失败！！");
+            setAttr("result",2);
+    		setAttr("status","insert fail");
+    		renderJson();
+        }
+	}
+	/**
+	 * 根据文章作者获取发布的文章
+	 */
+	public void getPublicedEasysByAuthor(){
+		String author="";
+		author =getPara("author");
+		System.out.println("进入查询部分文章方法");
+		EasyService easyGeter=new EasyService();  
+    	List<PublicedEasy> publicedeasylist=new ArrayList<PublicedEasy>();
 
+    	publicedeasylist=easyGeter.findPublicedEasyByAuthor(author);
+    	if(publicedeasylist.size()!=0){
+    		System.out.println("查询到"+publicedeasylist.size()+"条数据");
+    		setAttr("result",1);
+    		setAttr("publicedeasy_returns",publicedeasylist);
+    		renderJson();
+    	}else{
+    		setAttr("result",2);
+    		setAttr("reason","未查询到数据");
+    		System.out.println("未查询到数据");
+    		renderJson();
+    	}
+	}
 }

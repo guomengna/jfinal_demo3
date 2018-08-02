@@ -6,6 +6,10 @@ import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.render.ViewType;
 import com.jfinal.template.Engine;
 
+import controller.EasyManagementController;
+import controller.UserManagementController;
+import model.Easy;
+import model.PublicedEasy;
 import model.User;
 
 //import model.User;
@@ -21,6 +25,8 @@ public class DemoConfig extends JFinalConfig{
 	    	me.setBaseViewPath("/view");
 //	       me.add("/helloyou", HelloController.class);//蓝字部分为在网址中localhost后边加上的部分//使用helloyou是无法跳转的路径写法
 	    	me.add("/hello", HelloController.class);//配置项目的根目录为/WEB-INF/view/hello/***.html
+	    	me.add("/usermanagement",UserManagementController.class);
+	    	me.add("/easymanagement",EasyManagementController.class);
 	    }
 	    public void configEngine(Engine me) {}
 	    public void configPlugin(Plugins me) {
@@ -30,7 +36,10 @@ public class DemoConfig extends JFinalConfig{
 	    	me.add(c3p0);
 	        ActiveRecordPlugin activeRecord=new ActiveRecordPlugin("otherConfig",c3p0);
 	        activeRecord.addMapping("user",User.class);
-	        me.add(activeRecord);   
+	        activeRecord.addMapping("easy",Easy.class);
+	        activeRecord.addMapping("publicedeasy",PublicedEasy.class);
+	        me.add(activeRecord);
+	        
 	        /**
 	        ActiveReceord 中定义了 addMapping(String tableName, Class<? extends Model> modelClass>)方法，该方法建立了数据库表名到 Model 的映射关系。 另外，以上代码中 arp.addMapping(“user”, User.class)，表的主键名为默认为“id”，如果主键名称为 “user_id”则需要手动指定，如：arp.addMapping(“user”, “user_id”, User.class)。 
 	我的user表主键为id,因此使用默认主键为id,如果是其他就得修改。
