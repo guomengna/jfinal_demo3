@@ -278,4 +278,22 @@ public class EasyManagementController extends Controller{
     		renderJson();
     	}
 	}
+	
+	//通过id查询发布的文章，接口测试成功
+		public void findByPublicedEasyId(){
+			int publicedeasyid = getParaToInt("publicedeasyid");
+			PublicedEasy publicedEasy=new PublicedEasy();
+			EasyService easyGeter=new EasyService();  
+			publicedEasy=easyGeter.findByPublicedId(publicedeasyid);
+	    	if(publicedEasy!=null){
+	    		setAttr("result",1);
+	    		setAttr("getEasy_returns",publicedEasy);
+	    		renderJson();
+	    	}else{
+	    		setAttr("result",2);
+	    		setAttr("reason","未查询到数据");
+	    		System.out.println("未查询到数据");
+	    		renderText("未查询到数据！！");
+	    	}
+		}
 }

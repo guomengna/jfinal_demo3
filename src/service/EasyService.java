@@ -73,4 +73,18 @@ public class EasyService {
 		List<PublicedEasy> easyList=PublicedEasy.getter.find(sql);
 		return easyList;
 	}
+	
+	/**
+	 * 通过id查询文章,不用sql语句，直接调用Model中提供的findById()方法
+	 * @param id
+	 * @return
+	 */
+	public PublicedEasy findByPublicedId(int publicedeasyid){
+		//String sql="select *from easy where id='"+id+"'";
+//		PublicedEasy publicedEasy=PublicedEasy.getter.findById(publicedeasyid);
+		String sql="select *from publicedeasy where publicedeasyid='"+publicedeasyid+"'";
+		List<PublicedEasy> publicedEasyList=PublicedEasy.getter.find(sql);
+		PublicedEasy publicedEasy=publicedEasyList.get(0);
+		return publicedEasy;
+	}
 }
