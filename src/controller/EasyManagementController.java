@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-
-
+import com.hankcs.hanlp.HanLP;
 import com.jfinal.core.Controller;
 
 
 
 import model.Easy;
+import model.Keyword;
 import model.PublicedEasy;
 import model.User;
 
@@ -28,6 +28,8 @@ import service.ReadUserService;
  * 更新与回滚暂时还未实现
  */
 public class EasyManagementController extends Controller{
+	//存放此用户所写的文章中提取出来的所有关键字。
+	List<String> keywords = new ArrayList<>();
 	public void jumpToEasymanagement() {
     	//render("/html/easymanagement.html");
     }
@@ -36,9 +38,8 @@ public class EasyManagementController extends Controller{
 	 */
 	public void getAllEasys(){
 		System.out.println("进入查询全部文章方法");
-		EasyService easyGeter=new EasyService();  
+		EasyService easyGeter=new EasyService();
     	List<Easy> easylist=new ArrayList<Easy>();
-
     	easylist=easyGeter.findAllEasy();
     	if(easylist.size()!=0){
     		System.out.println("查询到"+easylist.size()+"条数据");
@@ -107,6 +108,11 @@ public class EasyManagementController extends Controller{
 		title =getPara("title");
 		author =getPara("author");
 		content =getPara("content");
+		//关键词获取
+		keywords = (HanLP.extractKeyword(content, 3));
+		for(int i=0;i<keywords.size();i++){
+			System.out.print(keywords.get(i)+" ");
+		}
 		createData =getPara("createData");
 		updateData =getPara("updateData");
 		//easyTable为easy表的别名
@@ -124,6 +130,18 @@ public class EasyManagementController extends Controller{
         boolean flag = easy.save();  
         if (flag) {  
         	renderText("yes!插入成功！！");
+        	//上传此文章中的关键字到数据库中
+        	for(int j=0;j<keywords.size();j++){
+        		Keyword k = new Keyword();
+        		k.setKeyword(keywords.get(j));
+        		k.setAuthor(author);
+        		boolean flagforkeyword = k.save(); 
+        		if(flagforkeyword){
+        			renderText("关键字"+j+"上传成功");
+        		}else{
+        			renderText("关键字"+j+"上传失败");
+        		}
+        	}
         	setAttr("result",1);
     		setAttr("status","insert succeed");
     		renderJson();
